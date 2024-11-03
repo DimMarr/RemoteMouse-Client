@@ -49,6 +49,45 @@ public class MainActivity extends Activity implements SensorEventListener {
         gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         previousY = screenHeight / 2;
         previousX = screenWidth / 2;
+
+        Button leftButton = findViewById(R.id.leftButton);
+        Button rightButton = findViewById(R.id.rightButton);
+
+        leftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isConnected) {
+                    new Thread(() -> {
+                        try {
+                            // Code pour indiquer un clic gauche
+                            outputStream.write("CLICK_LEFT\n".getBytes());
+                            outputStream.flush();
+                            Log.d("Socket", "Clic gauche envoyé");
+                        } catch (Exception e) {
+                            Log.e("Socket", "Erreur d'envoi de clic gauche", e);
+                        }
+                    }).start();
+                }
+            }
+        });
+
+        rightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isConnected) {
+                    new Thread(() -> {
+                        try {
+                            // Code pour indiquer un clic droit
+                            outputStream.write("CLICK_RIGHT\n".getBytes());
+                            outputStream.flush();
+                            Log.d("Socket", "Clic droit envoyé");
+                        } catch (Exception e) {
+                            Log.e("Socket", "Erreur d'envoi de clic droit", e);
+                        }
+                    }).start();
+                }
+            }
+        });
     }
 
     private void connectToServer() {
