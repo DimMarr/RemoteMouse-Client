@@ -44,4 +44,5 @@
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
     <string name="connexion">Connexion</string>
+    <string name="entrez_l_adresse_ip_du_serveur">Entrez l\'adresse IP du serveur</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.remotemouse;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -8,8 +9,10 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import java.io.OutputStream;
 import java.net.Socket;
@@ -23,53 +26,59 @@ public class MainActivity extends Activity implements SensorEventListener {
     private OutputStream outputStream;
     private Button connectButton;
     private boolean isConnected = false;
-    private float previousX, previousY;
 
     float screenWidth = 1920;  // Largeur de l'écran
     float screenHeight = 1080;  // Hauteur de l'écran
+    private EditText ipAddressField;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ipAddressField = findViewById(R.id.ipAddressField);
         connectButton = findViewById(R.id.connectButton);
-        connectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isConnected) {
-                    disconnectFromServer();
+        connectButton.setOnClickListener(v -> {
+            if (!isConnected) {
+                String ipAddress = ipAddressField.getText().toString().trim();
+                if (!ipAddress.isEmpty()) {
+                    connectToServer(ipAddress);
                 } else {
-                    connectToServer();
+                    Log.e("Socket", "Adresse IP non valide");
                 }
+            } else {
+                disconnectFromServer();
             }
         });
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        previousY = screenHeight / 2;
-        previousX = screenWidth / 2;
 
         Button leftButton = findViewById(R.id.leftButton);
         Button rightButton = findViewById(R.id.rightButton);
 
-        leftButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isConnected) {
-                    new Thread(() -> {
-                        try {
-                            // Code pour indiquer un clic gauche
-                            outputStream.write("CLICK_LEFT\n".getBytes());
+        leftButton.setOnTouchListener((v, event) -> {
+            if (isConnected) {
+                new Thread(() -> {
+                    try {
+                        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                            outputStream.write("CLICK_LEFT_DOWN\n".getBytes());
                             outputStream.flush();
-                            Log.d("Socket", "Clic gauche envoyé");
-                        } catch (Exception e) {
-                            Log.e("Socket", "Erreur d'envoi de clic gauche", e);
+                            Log.d("Socket", "Clic gauche maintenu envoyé");
+                        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                            outputStream.write("CLICK_LEFT_UP\n".getBytes());
+                            outputStream.flush();
+                            Log.d("Socket", "Clic gauche relâché envoyé");
                         }
-                    }).start();
-                }
+                    } catch (Exception e) {
+                        Log.e("Socket", "Erreur d'envoi du clic gauche maintenu", e);
+                    }
+                }).start();
             }
+            return true; // Indiquer que l'événement a été traité
         });
+
 
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,10 +99,10 @@ public class MainActivity extends Activity implements SensorEventListener {
         });
     }
 
-    private void connectToServer() {
+    private void connectToServer(String ipAddress) {
         new Thread(() -> {
             try {
-                socket = new Socket("192.168.1.57", 65432); // IP de votre ordinateur
+                socket = new Socket(ipAddress, 65432); // Utiliser l'adresse IP saisie
                 outputStream = socket.getOutputStream();
                 runOnUiThread(() -> {
                     isConnected = true;
@@ -108,18 +117,15 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     private void disconnectFromServer() {
         try {
-            if (socket != null) {
-                socket.close(); // Fermer le socket
-                socket = null;
-                outputStream = null;
-            }
+            if (outputStream != null) outputStream.close();
+            if (socket != null) socket.close();
+            isConnected = false;
             runOnUiThread(() -> {
-                isConnected = false;
                 connectButton.setText("Connexion");
                 connectButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
             });
         } catch (Exception e) {
-            Log.e("Socket", "Erreur de fermeture", e);
+            Log.e("Socket", "Erreur de déconnexion", e);
         }
     }
 
@@ -141,46 +147,39 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            float gyroX = event.values[0]; // Rotation autour de l'axe X
-            float gyroY = event.values[1]; // Rotation autour de l'axe Y
-            float gyroZ = event.values[2]; // Rotation autour de l'axe Z
+            float gyroX = event.values[0];
+            float gyroY = event.values[1];
+            float gyroZ = event.values[2];
 
-            // Log les valeurs du gyroscope
             Log.d("Gyroscope", "X: " + (int)gyroX + ", Y: " + (int)gyroY + ", Z: " + (int)gyroZ);
 
-            // Définir un facteur de sensibilité pour les mouvements
-            float sensitivity = 50; // Ajustez cette valeur selon vos préférences
-
-            // Récupérer les valeurs précédentes pour le mouvement
-            float newX = previousX - (gyroZ * sensitivity);
-            float newY = previousY - (gyroX * sensitivity); // Inverser Y pour correspondre à l'orientation
-
-            // Limiter la position dans les limites de l'écran
-            newX = Math.max(0, Math.min(newX, screenWidth));
-            newY = Math.max(0, Math.min(newY, screenHeight));
-
-            // Envoyer les coordonnées à l'ordinateur si connecté
             if (isConnected) {
-                new SendCoordinatesThread(outputStream, (int) newX, (int) newY).start();
+                new SendCoordinatesThread(outputStream, gyroZ, gyroX).start();
             }
-
-            // Mettre à jour les précédentes valeurs
-            previousX = newX;
-            previousY = newY;
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            // Si le bouton volume bas est pressé, envoyer un clic gauche
             if (isConnected) {
                 new Thread(() -> {
                     try {
-                        // Code spécifique pour indiquer un clic gauche (à ajuster côté serveur si nécessaire)
-                        outputStream.write("CLICK_LEFT\n".getBytes());
+                        outputStream.write("VOLUME_DOWN\n".getBytes());
                         outputStream.flush();
-                        Log.d("Socket", "Clic gauche envoyé");
+                    } catch (Exception e) {
+                        Log.e("Socket", "Erreur d'envoi de clic gauche", e);
+                    }
+                }).start();
+            }
+            return true;
+        }
+        if(keyCode == KeyEvent.KEYCODE_VOLUME_UP){
+            if (isConnected) {
+                new Thread(() -> {
+                    try {
+                        outputStream.write("VOLUME_UP\n".getBytes());
+                        outputStream.flush();
                     } catch (Exception e) {
                         Log.e("Socket", "Erreur d'envoi de clic gauche", e);
                     }
@@ -190,6 +189,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
         return super.onKeyDown(keyCode, event);
     }
+
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
