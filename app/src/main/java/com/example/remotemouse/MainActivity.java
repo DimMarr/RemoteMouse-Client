@@ -27,8 +27,6 @@ public class MainActivity extends Activity implements SensorEventListener {
     private Button connectButton;
     private boolean isConnected = false;
 
-    float screenWidth = 1920;  // Largeur de l'écran
-    float screenHeight = 1080;  // Hauteur de l'écran
     private EditText ipAddressField;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -39,6 +37,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         ipAddressField = findViewById(R.id.ipAddressField);
         connectButton = findViewById(R.id.connectButton);
+        Button alignButton = findViewById(R.id.alignButton);
+        Button leftKey = findViewById(R.id.arrowLeftButton);
+        Button rightKey = findViewById(R.id.arrowRightButton);
         connectButton.setOnClickListener(v -> {
             if (!isConnected) {
                 String ipAddress = ipAddressField.getText().toString().trim();
@@ -51,14 +52,52 @@ public class MainActivity extends Activity implements SensorEventListener {
                 disconnectFromServer();
             }
         });
+        alignButton.setOnClickListener(v -> {
+            if (isConnected) {
+                new Thread(() -> {
+                    try {
+                        outputStream.write("ALIGN_CENTER\n".getBytes());
+                        outputStream.flush();
+                        Log.d("Socket", "Alignement envoyé");
+                    } catch (Exception e) {
+                        Log.e("Socket", "Erreur d'envoi de l'alignement", e);
+                    }
+                }).start();
+            }
+        });
+        leftKey.setOnClickListener(v -> {
+            if (isConnected) {
+                new Thread(() -> {
+                    try {
+                        outputStream.write("KEY_LEFT".getBytes());
+                        outputStream.flush();
+                    } catch (Exception e) {
+                        Log.e("Socket", "Erreur d'envoi du clic gauche", e);
+                    }
+                }).start();
+            }
+        });
+        rightKey.setOnClickListener(v -> {
+            if (isConnected) {
+                new Thread(() -> {
+                    try {
+                        outputStream.write("KEY_RIGHT".getBytes());
+                        outputStream.flush();
+                    } catch (Exception e) {
+                        Log.e("Socket", "Erreur d'envoi du clic droit", e);
+                    }
+                }).start();
+            }
+        });
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         Button leftButton = findViewById(R.id.leftButton);
         Button rightButton = findViewById(R.id.rightButton);
+        Button oldLeftButton = findViewById(R.id.oldLeftButton);
 
-        leftButton.setOnTouchListener((v, event) -> {
+        oldLeftButton.setOnTouchListener((v, event) -> {
             if (isConnected) {
                 new Thread(() -> {
                     try {
@@ -79,6 +118,23 @@ public class MainActivity extends Activity implements SensorEventListener {
             return true; // Indiquer que l'événement a été traité
         });
 
+        leftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isConnected) {
+                    new Thread(() -> {
+                        try {
+                            // Code pour indiquer un clic droit
+                            outputStream.write("CLICK_LEFT_ONE\n".getBytes());
+                            outputStream.flush();
+                            Log.d("Socket", "Clic gauche envoyé");
+                        } catch (Exception e) {
+                            Log.e("Socket", "Erreur d'envoi de clic droit", e);
+                        }
+                    }).start();
+                }
+            }
+        });
 
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,7 +162,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 outputStream = socket.getOutputStream();
                 runOnUiThread(() -> {
                     isConnected = true;
-                    connectButton.setText("Déconnexion");
                     connectButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
                 });
             } catch (Exception e) {
@@ -121,7 +176,6 @@ public class MainActivity extends Activity implements SensorEventListener {
             if (socket != null) socket.close();
             isConnected = false;
             runOnUiThread(() -> {
-                connectButton.setText("Connexion");
                 connectButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
             });
         } catch (Exception e) {

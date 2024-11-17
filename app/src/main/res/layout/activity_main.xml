@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Bouton Connexion -->
     <Button
         android:id="@+id/connectButton"
         android:layout_width="71dp"
         android:layout_height="44dp"
         android:background="@drawable/rounded_button"
         android:padding="20dp"
-        android:text="@string/connexion"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -21,6 +21,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.036" />
 
+    <!-- Champ pour entrer l'adresse IP -->
     <EditText
         android:id="@+id/ipAddressField"
         android:layout_width="254dp"
@@ -37,37 +38,111 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.037" />
 
+    <!-- Bouton Clic droit (R) -->
+
+    <!-- Bouton Clic gauche (L) -->
+
+    <!-- Bouton Clic gauche Maintenu (L) -->
+
     <Button
         android:id="@+id/rightButton"
-        android:layout_width="171dp"
-        android:layout_height="91dp"
-        android:layout_marginStart="36dp"
+        android:layout_width="173dp"
+        android:layout_height="139dp"
         android:background="@drawable/rounded_button"
         android:padding="20dp"
-        android:text="R"
+        android:text="@string/right"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.921"
+        app:layout_constraintHorizontal_bias="0.932"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.912" />
+        app:layout_constraintVertical_bias="0.971" />
 
     <Button
         android:id="@+id/leftButton"
+        android:layout_width="173dp"
+        android:layout_height="139dp"
+        android:background="@drawable/rounded_button"
+        android:padding="20dp"
+        android:text="@string/left"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.084"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.971" />
+
+    <Button
+        android:id="@+id/oldLeftButton"
         android:layout_width="176dp"
         android:layout_height="92dp"
         android:background="@drawable/rounded_button"
         android:padding="20dp"
-        android:text="L"
+        android:text="@string/old_left"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.085"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alignButton"
+        app:layout_constraintVertical_bias="0.402" />
+
+    <Button
+        android:id="@+id/arrowLeftButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/arrow_left"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/oldLeftButton"
+        app:layout_constraintHorizontal_bias="0.413"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.913" />
+        app:layout_constraintVertical_bias="0.748" />
+
+    <Button
+        android:id="@+id/arrowRightButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/arrow_right"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.066"
+        app:layout_constraintStart_toEndOf="@+id/oldLeftButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.762" />
+
+    <Button
+        android:id="@+id/alignButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@drawable/circular_button"
+        android:text="@string/align"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/rightButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ipAddressField"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp" />
+
+    <!-- Bouton Flèche Gauche -->
+
+    <!-- Bouton Flèche Droite -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

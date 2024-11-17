@@ -19,7 +19,7 @@ public class SendCoordinatesThread extends Thread {
     public void run() {
         try {
             if (outputStream != null) {
-                String message = "COORD_"+newX + "," + newY;
+                String message = "COORD_"+newX + "," + newY+"_";
                 outputStream.write(message.getBytes());
                 outputStream.flush();
             }
