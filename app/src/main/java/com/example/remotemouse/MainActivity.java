@@ -36,6 +36,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         setContentView(R.layout.activity_main);
 
         ipAddressField = findViewById(R.id.ipAddressField);
+        if(!getSavedIpAddress().isEmpty()) {
+            ipAddressField.setText(getSavedIpAddress());
+        }
         connectButton = findViewById(R.id.connectButton);
         Button alignButton = findViewById(R.id.alignButton);
         Button leftKey = findViewById(R.id.arrowLeftButton);
@@ -163,6 +166,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 runOnUiThread(() -> {
                     isConnected = true;
                     connectButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+                    saveIpAddress(ipAddress);
                 });
             } catch (Exception e) {
                 Log.e("Socket", "Erreur de connexion", e);
@@ -181,6 +185,14 @@ public class MainActivity extends Activity implements SensorEventListener {
         } catch (Exception e) {
             Log.e("Socket", "Erreur de déconnexion", e);
         }
+    }
+
+    private void saveIpAddress(String ipAddress) {
+        getPreferences(MODE_PRIVATE).edit().putString("ipAddress", ipAddress).apply();
+    }
+
+    private String getSavedIpAddress() {
+        return getPreferences(MODE_PRIVATE).getString("ipAddress", "");
     }
 
     @Override
