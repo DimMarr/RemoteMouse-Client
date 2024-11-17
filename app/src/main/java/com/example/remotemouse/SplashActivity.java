@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
 
-    private static final int SPLASH_TIME_OUT = 3000; // Durée du splash en millisecondes (ici 3 secondes)
+    private static final int SPLASH_TIME_OUT = 3000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,15 +27,11 @@ public class SplashActivity extends AppCompatActivity {
 
         logo.animate().alpha(1f).setDuration(1000);
 
-        // Attendre quelques secondes puis démarrer MainActivity
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        }, 3000);  // Splash screen dure 3 secondes
+        new Handler().postDelayed(() -> {
+            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }, SPLASH_TIME_OUT);
     }
 
 }

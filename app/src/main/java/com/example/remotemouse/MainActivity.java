@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -21,13 +20,14 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor gyroscopeSensor;
-
     private Socket socket;
     private OutputStream outputStream;
+
     private Button connectButton;
+    private EditText ipAddressField;
+
     private boolean isConnected = false;
 
-    private EditText ipAddressField;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -118,42 +118,34 @@ public class MainActivity extends Activity implements SensorEventListener {
                     }
                 }).start();
             }
-            return true; // Indiquer que l'événement a été traité
+            return true;
         });
 
-        leftButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isConnected) {
-                    new Thread(() -> {
-                        try {
-                            // Code pour indiquer un clic droit
-                            outputStream.write("CLICK_LEFT_ONE\n".getBytes());
-                            outputStream.flush();
-                            Log.d("Socket", "Clic gauche envoyé");
-                        } catch (Exception e) {
-                            Log.e("Socket", "Erreur d'envoi de clic droit", e);
-                        }
-                    }).start();
-                }
+        leftButton.setOnClickListener(v -> {
+            if (isConnected) {
+                new Thread(() -> {
+                    try {
+                        outputStream.write("CLICK_LEFT_ONE\n".getBytes());
+                        outputStream.flush();
+                        Log.d("Socket", "Clic gauche envoyé");
+                    } catch (Exception e) {
+                        Log.e("Socket", "Erreur d'envoi de clic droit", e);
+                    }
+                }).start();
             }
         });
 
-        rightButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isConnected) {
-                    new Thread(() -> {
-                        try {
-                            // Code pour indiquer un clic droit
-                            outputStream.write("CLICK_RIGHT\n".getBytes());
-                            outputStream.flush();
-                            Log.d("Socket", "Clic droit envoyé");
-                        } catch (Exception e) {
-                            Log.e("Socket", "Erreur d'envoi de clic droit", e);
-                        }
-                    }).start();
-                }
+        rightButton.setOnClickListener(v -> {
+            if (isConnected) {
+                new Thread(() -> {
+                    try {
+                        outputStream.write("CLICK_RIGHT\n".getBytes());
+                        outputStream.flush();
+                        Log.d("Socket", "Clic droit envoyé");
+                    } catch (Exception e) {
+                        Log.e("Socket", "Erreur d'envoi de clic droit", e);
+                    }
+                }).start();
             }
         });
     }
@@ -161,7 +153,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private void connectToServer(String ipAddress) {
         new Thread(() -> {
             try {
-                socket = new Socket(ipAddress, 65432); // Utiliser l'adresse IP saisie
+                socket = new Socket(ipAddress, 65432);
                 outputStream = socket.getOutputStream();
                 runOnUiThread(() -> {
                     isConnected = true;
@@ -207,7 +199,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     protected void onPause() {
         super.onPause();
         sensorManager.unregisterListener(this);
-        disconnectFromServer(); // Fermer le socket si l'application est mise en pause
+        disconnectFromServer();
     }
 
     @Override
@@ -255,8 +247,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
         return super.onKeyDown(keyCode, event);
     }
-
-
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

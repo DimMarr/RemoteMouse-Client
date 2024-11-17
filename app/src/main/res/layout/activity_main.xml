@@ -21,11 +21,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.036" />
 
-    <!-- Champ pour entrer l'adresse IP -->
     <EditText
         android:id="@+id/ipAddressField"
         android:layout_width="254dp"
         android:layout_height="43dp"
+        android:autofillHints="192.168.1."
         android:backgroundTint="@android:color/holo_green_dark"
         android:hint="@string/entrez_l_adresse_ip_du_serveur"
         android:inputType="text"
